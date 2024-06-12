@@ -2764,3 +2764,9 @@ section,
   color: color-mix(in srgb, var(--default-color), transparent 60%);
   font-size: 14px;
 }
+.sitename{
+  font-family: "Roboto"
+}
+.sitename span{
+  color: #818181;
+}
