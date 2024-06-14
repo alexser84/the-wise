@@ -1,0 +1,33 @@
+/* Estilos personalizados */
+header {
+    background-image: url('path/to/your/image.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white;
+}
+
+header h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+header p {
+    font-size: 1.5rem;
+}
+
+ul.list-unstyled li {
+    margin-bottom: 1.5rem;
+}
+
+.carousel-item p {
+    font-size: 1.2rem;
+}
+
+footer a {
+    color: white;
+    transition: color 0.3s;
+}
+
+footer a:hover {
+    color: #f1c40f;
+}
