@@ -2785,7 +2785,7 @@ section,
 .mouse {
   width: 24px;
   height: 40px;
-  border: 2px solid #000;
+  border: 3px solid var(--heading-color);
   border-radius: 12px;
   position: relative;
 }
@@ -2793,7 +2793,7 @@ section,
 .scroller {
   width: 4px;
   height: 8px;
-  background: #000;
+  background: var(--heading-color);
   border-radius: 2px;
   position: absolute;
   top: 10px;
@@ -2818,8 +2818,8 @@ section,
   display: block;
   width: 16px;
   height: 16px;
-  border-left: 2px solid #000;
-  border-bottom: 2px solid #000;
+  border-left: 2px solid var(--heading-color);
+  border-bottom: 2px solid var(--heading-color);
   transform: rotate(-45deg);
   margin: -4px;
   animation: bounce 2s infinite;
