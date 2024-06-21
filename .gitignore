@@ -91,3 +91,9 @@ dist/
 
 # VS Code directories
 .vscode/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars
