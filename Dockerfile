@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Copiar el archivo .env
-COPY .env .env
+# COPY .env .env
 
 # Exponer el puerto especificado en el archivo .env
 EXPOSE ${PORT}

@@ -51,5 +51,5 @@ jobs:
         docker pull ${{ secrets.DOCKER_USERNAME }}/the-wise:latest
         docker stop the-wise || true
         docker rm the-wise || true
-        docker run -d --name the-wise -p $PORT:$PORT ${{ secrets.DOCKER_USERNAME }}/the-wise:latest
+        docker run -d --name the-wise -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.DOCKER_USERNAME }}/the-wise:latest
         EOF
