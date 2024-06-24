@@ -45,6 +45,14 @@ jobs:
           --tag-name web \
           --wait
 
+    - name: Wait for droplet to be ready
+      run: |
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        while ! nc -z $IP 22; do
+          echo "Waiting for SSH to be available..."
+          sleep 5
+        done
+
     - name: Deploy application
       run: |
         ssh -o StrictHostKeyChecking=no root@$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header) << 'EOF'
