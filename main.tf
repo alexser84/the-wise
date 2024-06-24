@@ -16,7 +16,3 @@ resource "digitalocean_droplet" "web" {
     ]
   }
 }
-
-variable "do_token" {}
-variable "ssh_fingerprint" {}
-variable "docker_image" {}
