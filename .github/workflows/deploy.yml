@@ -111,6 +111,12 @@ jobs:
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
+        while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+          echo "Waiting for release of dpkg lock..."
+          sleep 5
+        done
+        apt-get update
+        apt-get install -y docker-compose
         docker-compose -f ./docker-compose.yml up -d
         EOF
         rm private_key
