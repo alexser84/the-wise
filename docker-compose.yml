@@ -25,5 +25,14 @@ services:
     env_file:
       - .env
 
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+
 volumes:
   postgres_data:
