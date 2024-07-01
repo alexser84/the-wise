@@ -1,4 +1,4 @@
-name: Deploy to AWS S3 with Terraform
+name: Deploy to DigitalOcean
 
 on:
   push:
@@ -30,26 +30,6 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/the-wise:latest
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-
-    - name: Set up Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_wrapper: false
-
     - name: Install doctl
       run: |
         curl -sL https://github.com/digitalocean/doctl/releases/download/v1.64.0/doctl-1.64.0-linux-amd64.tar.gz | tar -xzv
@@ -61,6 +41,7 @@ jobs:
     - name: Validate if droplet exists
       id: check_droplet
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         if doctl compute droplet list the-wise-app --format Name | grep -q the-wise-app; then
           echo "Droplet exists"
           echo "exists=true" >> $GITHUB_ENV
@@ -72,6 +53,7 @@ jobs:
     - name: Power on droplet if exists
       if: env.exists == 'true'
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         DROPLET_ID=$(doctl compute droplet list the-wise-app --format ID --no-header)
         if [ $(doctl compute droplet get $DROPLET_ID --format Status --no-header) != "active" ]; then
           doctl compute droplet-action power-on $DROPLET_ID
@@ -102,11 +84,16 @@ jobs:
         done
 
     - name: Deploy application
+      env:
+        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
       run: |
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
-        ssh -o StrictHostKeyChecking=no root@$IP << 'EOF'
+        echo "$PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
         docker pull ${{ secrets.DOCKER_USERNAME }}/the-wise:latest
         docker stop the-wise || true
         docker rm the-wise || true
         docker run -d --name the-wise -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.DOCKER_USERNAME }}/the-wise:latest
         EOF
+        rm private_key
