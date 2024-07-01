@@ -91,12 +91,17 @@ jobs:
         done
 
     - name: Install Docker Compose on Droplet
+      env:
+        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
       run: |
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        echo "$PRIVATE_KEY" > private_key
+        chmod 600 private_key
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
         apt-get update
         apt-get install -y docker-compose
         EOF
+        rm private_key
 
     - name: Deploy application
       env:
@@ -106,6 +111,6 @@ jobs:
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
-        docker-compose -f /path/to/docker-compose.yml up -d
+        docker-compose -f ./docker-compose.yml up -d
         EOF
         rm private_key
