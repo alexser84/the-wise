@@ -7,9 +7,9 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "mi-terraform-state"
+    bucket = "tiidi"
     key    = "the-wise-app/terraform.tfstate"
-    region = "us-west-2"
+    region = "us-east-2"
   }
 }
 
