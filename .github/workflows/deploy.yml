@@ -157,6 +157,8 @@ jobs:
         apt-get update
         apt-get install -y docker-compose
         cd $PROJECT_DIR/
+        pwd
+        ls
         docker-compose up -d
         EOF
         rm private_key
