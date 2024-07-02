@@ -156,6 +156,7 @@ jobs:
         done
         apt-get update
         apt-get install -y docker-compose
+        cat $PROJECT_DIR/
         cd $PROJECT_DIR/
         pwd
         ls
