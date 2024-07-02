@@ -101,6 +101,7 @@ jobs:
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP "mkdir -p $PROJECT_DIR"
         scp -i private_key -o StrictHostKeyChecking=no -r ./* root@$IP:$PROJECT_DIR
         rm private_key
 
