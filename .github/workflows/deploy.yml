@@ -164,5 +164,10 @@ jobs:
         rm private_key
 
     - name: Apply Terraform configurations
+      env:
+        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        SSH_FINGERPRINT: ${{ secrets.SSH_KEY_FINGERPRINT }}
+        DOCKER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/the-wise:latest
+        PORT: ${{ secrets.PORT }}
       run: |
-        terraform apply -auto-approve
+        terraform apply -var "do_token=${{ env.DO_TOKEN }}" -var "ssh_fingerprint=${{ env.SSH_FINGERPRINT }}" -var "docker_image=${{ env.DOCKER_IMAGE }}" -var "port=${{ env.PORT }}" -auto-approve
