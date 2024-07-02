@@ -56,10 +56,6 @@ resource "digitalocean_certificate" "example" {
   name           = "thewise-cl-certificate"
   type           = "lets_encrypt"
   domains        = ["thewise.cl", "www.thewise.cl"]
-  wildcard       = false
-  lets_encrypt {
-    product_name = "Custom"
-  }
 }
 
 # Outputs para facilitar la integración con otras configuraciones
