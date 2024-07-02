@@ -26,7 +26,8 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
-        context: .
+        context: .  # Asegúrate de que el contexto esté correcto
+        file: ./Dockerfile  # Asegúrate de que la ruta del Dockerfile esté correcta
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/the-wise:latest
 
