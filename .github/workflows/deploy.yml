@@ -162,3 +162,7 @@ jobs:
         docker-compose up -d
         EOF
         rm private_key
+
+    - name: Apply Terraform configurations
+      run: |
+        terraform apply -auto-approve
