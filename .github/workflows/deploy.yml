@@ -10,6 +10,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      PROJECT_DIR: /root/project
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -93,16 +96,18 @@ jobs:
     - name: Copy project to Droplet
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+        PROJECT_DIR: ${{ env.PROJECT_DIR }}
       run: |
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
-        scp -i private_key -o StrictHostKeyChecking=no -r ./* root@$IP:/root/
+        scp -i private_key -o StrictHostKeyChecking=no -r ./* root@$IP:$PROJECT_DIR/
         rm private_key
 
     - name: Install Docker Compose on Droplet
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+        PROJECT_DIR: ${{ env.PROJECT_DIR }}
       run: |
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
@@ -113,19 +118,10 @@ jobs:
         EOF
         rm private_key
 
-    - name: Copy docker-compose.yml to Droplet
-      env:
-        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
-      run: |
-        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
-        echo "$PRIVATE_KEY" > private_key
-        chmod 600 private_key
-        scp -i private_key -o StrictHostKeyChecking=no docker-compose.yml root@$IP:/root/docker-compose.yml
-        rm private_key
-
     - name: Create .env file on Droplet
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+        PROJECT_DIR: ${{ env.PROJECT_DIR }}
         PORT: ${{ secrets.PORT }}
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
         POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
@@ -136,17 +132,18 @@ jobs:
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP << EOF
-        echo "PORT=${{ secrets.PORT }}" >> /root/.env
-        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> /root/.env
-        echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> /root/.env
-        echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> /root/.env
-        echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> /root/.env
+        echo "PORT=${{ secrets.PORT }}" >> $PROJECT_DIR/.env
+        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $PROJECT_DIR/.env
+        echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> $PROJECT_DIR/.env
+        echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> $PROJECT_DIR/.env
+        echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> $PROJECT_DIR/.env
         EOF
         rm private_key
 
     - name: Deploy application
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+        PROJECT_DIR: ${{ env.PROJECT_DIR }}
       run: |
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
@@ -158,7 +155,7 @@ jobs:
         done
         apt-get update
         apt-get install -y docker-compose
-        cd /root/project/
-        docker-compose --env-file /root/.env up -d
+        cd $PROJECT_DIR/
+        docker-compose up -d
         EOF
         rm private_key
