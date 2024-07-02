@@ -129,6 +129,6 @@ jobs:
         apt-get install -y docker-compose
         pwd
         ls
-        docker-compose.yml up -d
+        docker-compose -f docker-compose.yml up -d
         EOF
         rm private_key
