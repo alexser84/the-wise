@@ -127,8 +127,11 @@ jobs:
         done
         apt-get update
         apt-get install -y docker-compose
-        pwd
-        ls
+        export PORT=${{ secrets.PORT }}
+        export DATABASE_URL=${{ secrets.DATABASE_URL }}
+        export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+        export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+        export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
         docker-compose -f docker-compose.yml up -d
         EOF
         rm private_key
