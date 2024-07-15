@@ -115,7 +115,7 @@ resource "digitalocean_record" "autodiscover" {
   domain = digitalocean_domain.domain.name
   type   = "CNAME"
   name   = "autodiscover"
-  value  = "autodiscover.outlook.com"
+  value  = "autodiscover.outlook.com."
   ttl    = 3600
 }
 
@@ -123,7 +123,7 @@ resource "digitalocean_record" "mx" {
   domain = digitalocean_domain.domain.name
   type   = "MX"
   name   = "@"
-  value  = "thewise-cl.mail.protection.outlook.com"
+  value  = "thewise-cl.mail.protection.outlook.com."
   priority = 10
   ttl    = 3600
 }
