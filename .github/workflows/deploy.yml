@@ -6,12 +6,12 @@ on:
       - main
       - feat/static-to-node-app
 
+env:
+  PROJECT_DIR: /root/project
 jobs:
+  
   build:
     runs-on: ubuntu-latest
-
-    env:
-      PROJECT_DIR: /root/project
 
     steps:
     - name: Checkout code
@@ -33,10 +33,17 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/the-wise:latest
 
+
     - name: Install doctl
       run: |
         curl -sL https://github.com/digitalocean/doctl/releases/download/v1.64.0/doctl-1.64.0-linux-amd64.tar.gz | tar -xzv
         sudo mv doctl /usr/local/bin
+  
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2 
 
     - name: Validate if droplet exists
       id: check_droplet
