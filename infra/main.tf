@@ -24,7 +24,6 @@ resource "digitalocean_vpc" "vpc" {
 
 resource "digitalocean_firewall" "firewall" {
   name    = "the-wise-firewall"
-  droplet_ids = [digitalocean_droplet.web.id]
 
   inbound_rule {
     protocol         = "tcp"
