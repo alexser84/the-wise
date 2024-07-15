@@ -37,6 +37,3 @@ output "droplet_ip" {
   value = digitalocean_droplet.web.ipv4_address
 }
 
-output "certificate_id" {
-  value = digitalocean_certificate.example.id
-}
