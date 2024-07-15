@@ -1,4 +1,4 @@
-name: Deploy to DigitalOcean
+name: Deploy Application
 
 on:
   push:
@@ -37,16 +37,6 @@ jobs:
       run: |
         curl -sL https://github.com/digitalocean/doctl/releases/download/v1.64.0/doctl-1.64.0-linux-amd64.tar.gz | tar -xzv
         sudo mv doctl /usr/local/bin
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-
-    - name: Initialize Terraform
-      run: terraform init
 
     - name: Validate if droplet exists
       id: check_droplet
@@ -108,7 +98,6 @@ jobs:
     - name: Install Docker Compose on Droplet
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
-        PROJECT_DIR: ${{ env.PROJECT_DIR }}
       run: |
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
@@ -162,12 +151,3 @@ jobs:
         docker-compose up -d
         EOF
         rm private_key
-
-    - name: Apply Terraform configurations
-      env:
-        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-        SSH_FINGERPRINT: ${{ secrets.SSH_KEY_FINGERPRINT }}
-        DOCKER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/the-wise:latest
-        PORT: ${{ secrets.PORT }}
-      run: |
-        terraform apply -var "do_token=${{ env.DO_TOKEN }}" -var "ssh_fingerprint=${{ env.SSH_FINGERPRINT }}" -var "docker_image=${{ env.DOCKER_IMAGE }}" -var "port=${{ env.PORT }}" -auto-approve
