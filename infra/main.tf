@@ -38,8 +38,8 @@ resource "digitalocean_firewall" "firewall" {
   }
 
   outbound_rule {
-    protocol         = "tcp"
-    port_range       = "all"
+    protocol             = "tcp"
+    port_range           = "all"
     destination_addresses = ["0.0.0.0/0", "::/0"]
   }
 
@@ -57,7 +57,7 @@ resource "digitalocean_droplet" "web" {
   connection {
     type        = "ssh"
     user        = "root"
-    private_key = file("~/.ssh/id_rsa") # Asegúrate de que esta ruta sea correcta
+    private_key = var.private_key
     host        = self.ipv4_address
   }
 

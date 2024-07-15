@@ -17,3 +17,8 @@ variable "port" {
   description = "Port for the application"
   type        = string
 }
+
+variable "private_key" {
+  description = "Private key for SSH access"
+  type        = string
+}
