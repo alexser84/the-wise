@@ -53,6 +53,13 @@ resource "digitalocean_droplet" "web" {
   size   = "s-1vcpu-1gb"
   ssh_keys = [var.ssh_fingerprint]
   vpc_uuid = digitalocean_vpc.vpc.id
+  user_data = <<-EOF
+              #!/bin/bash
+              sudo apt-get update
+              sudo apt-get install -y docker.io
+              sudo systemctl enable docker
+              sudo systemctl start docker
+              EOF
 
   connection {
     type        = "ssh"
@@ -63,8 +70,6 @@ resource "digitalocean_droplet" "web" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo apt-get update",
-      "sudo apt-get install -y docker.io",
       "docker pull ${var.docker_image}",
       "docker run -d -p ${var.port}:${var.port} ${var.docker_image}"
     ]
