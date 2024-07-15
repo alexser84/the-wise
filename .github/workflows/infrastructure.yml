@@ -40,9 +40,9 @@ jobs:
       run: |
         cd infra
         terraform apply \
-          -var "do_token=${{ DO_TOKEN }}" \
-          -var "ssh_fingerprint=${{ SSH_FINGERPRINT }}" \
-          -var "docker_image=${{ DOCKER_IMAGE }}" \
-          -var "port=${{PORT}}" \
-          -var "private_key=${{ PRIVATE_KEY }}" \
+          -var "do_token=${DO_TOKEN}" \
+          -var "ssh_fingerprint=${SSH_FINGERPRINT}" \
+          -var "docker_image=${DOCKER_IMAGE}" \
+          -var "port=${PORT}" \
+          -var "private_key=${PRIVATE_KEY}" \
           -auto-approve
