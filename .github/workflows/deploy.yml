@@ -8,8 +8,8 @@ on:
 
 env:
   PROJECT_DIR: /root/project
+
 jobs:
-  
   build:
     runs-on: ubuntu-latest
 
@@ -170,3 +170,21 @@ jobs:
         docker-compose up -d
         EOF
         rm private_key
+
+    - name: Delete old DNS records
+      env:
+        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        records=$(doctl compute domain records list thewise.cl --no-header --format ID,Type | grep " A " | cut -d' ' -f1)
+        for record in $records; do
+          doctl compute domain records delete thewise.cl $record --force
+        done
+
+    - name: Create A record for thewise.cl
+      env:
+        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        doctl compute domain records create thewise.cl --record-type A --record-name @ --record-data $IP --record-ttl 3600

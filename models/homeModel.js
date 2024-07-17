@@ -1,6 +1,6 @@
 const homeController = {
-    title: "Mi Aplicación Node.js",
-    description: "Esta es una aplicación de ejemplo."
+    title: "The Wise - Soluciones sabias",
+    description: ""
 };
 
 module.exports = homeController;
