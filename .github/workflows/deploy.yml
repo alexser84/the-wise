@@ -193,9 +193,9 @@ jobs:
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         doctl compute domain records create thewise.cl --record-type A --record-name @ --record-data $IP --record-ttl 3600
 
-    - name: Create A record for www.thewise.cl
-      env:
-        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      run: |
-        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-        doctl compute domain records create thewise.cl --record-type A --record-name www --record-data thewise.cl --record-ttl 3600
+#    - name: Create A record for www.thewise.cl
+#      env:
+#        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+#      run: |
+#        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+#        doctl compute domain records create thewise.cl --record-type A --record-name www --record-data thewise.cl --record-ttl 3600
