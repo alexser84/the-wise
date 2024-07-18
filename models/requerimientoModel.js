@@ -1,6 +1,7 @@
 
 const requerimientoModel = {
-    // Define tu modelo aquí
+    title: "The Wise - Soluciones sabias",
+    description: ""
 };
 
 module.exports = requerimientoModel;
