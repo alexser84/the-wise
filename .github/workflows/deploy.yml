@@ -135,12 +135,30 @@ jobs:
         DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       run: |
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
-        if ! host thewise.cl | grep -q "$IP"; then
-          echo "DNS validation failed for thewise.cl"; exit 1
-        fi
-        if ! host www.thewise.cl | grep -q "$IP"; then
-          echo "DNS validation failed for www.thewise.cl"; exit 1
-        fi
+        for i in {1..5}; do
+          if host thewise.cl | grep -q "$IP"; then
+            echo "DNS configuration successful for thewise.cl"
+            break
+          else
+            echo "DNS validation failed for thewise.cl, retrying... ($i/5)"
+            sleep 60
+          fi
+          if [ $i -eq 5 ]; then
+            echo "DNS validation failed after 5 attempts"; exit 1
+          fi
+        done
+        for i in {1..5}; do
+          if host www.thewise.cl | grep -q "$IP"; then
+            echo "DNS configuration successful for www.thewise.cl"
+            break
+          else
+            echo "DNS validation failed for www.thewise.cl, retrying... ($i/5)"
+            sleep 60
+          fi
+          if [ $i -eq 5 ]; then
+            echo "DNS validation failed after 5 attempts"; exit 1
+          fi
+        done
 
     - name: Validate Certbot Installation
       env:
