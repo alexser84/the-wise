@@ -136,6 +136,7 @@ jobs:
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP "mkdir -p $PROJECT_DIR"
         scp -i private_key -o StrictHostKeyChecking=no -r ./* root@$IP:$PROJECT_DIR
         rm private_key
 
@@ -269,7 +270,25 @@ jobs:
 #        EOF
 #        rm private_key
 
-    - name: Deploy application
+    - name: Install Docker Compose on Droplet
+      env:
+        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+      run: |
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        echo "$PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
+        while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+          echo "Waiting for release of dpkg lock..."
+          sleep 5
+        done
+        apt-get update
+        apt-get install -y docker-compose
+        rm -rf /etc/update-motd.d/99-one-click
+        EOF
+        rm private_key
+
+    - name: Create .env file on Droplet
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
         PROJECT_DIR: ${{ env.PROJECT_DIR }}
@@ -282,6 +301,23 @@ jobs:
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << EOF
+        echo "PORT=${{ secrets.PORT }}" >> $PROJECT_DIR/.env
+        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $PROJECT_DIR/.env
+        echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> $PROJECT_DIR/.env
+        echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> $PROJECT_DIR/.env
+        echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> $PROJECT_DIR/.env
+        EOF
+        rm private_key
+
+    - name: Deploy application
+      env:
+        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+        PROJECT_DIR: ${{ env.PROJECT_DIR }}
+      run: |
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        echo "$PRIVATE_KEY" > private_key
+        chmod 600 private_key
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
         while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
           echo "Waiting for release of dpkg lock..."
@@ -290,6 +326,8 @@ jobs:
         apt-get update
         apt-get install -y docker-compose
         cd /root/project/
+        pwd
+        ls
         docker-compose up -d
         EOF
         rm private_key
