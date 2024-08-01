@@ -40,12 +40,12 @@ jobs:
       run: |
         curl -sL https://github.com/digitalocean/doctl/releases/download/v1.64.0/doctl-1.64.0-linux-amd64.tar.gz | tar -xzv
         sudo mv doctl /usr/local/bin
-  
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2 
+    - uses: actions/checkout@v2
 
     - name: Install doctl
       run: |
@@ -123,6 +123,7 @@ jobs:
         done
         apt-get update
         apt-get install -y docker-compose
+        apt-get install -y certbot
         rm -rf /etc/update-motd.d/99-one-click
         EOF
         rm private_key
@@ -149,6 +150,18 @@ jobs:
         EOF
         rm private_key
 
+    - name: Obtain SSL Certificate with Let's Encrypt
+      env:
+        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+      run: |
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        echo "$PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
+        certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m contacto@thewise.cl
+        EOF
+        rm private_key
+
     - name: Deploy application
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
@@ -165,8 +178,6 @@ jobs:
         apt-get update
         apt-get install -y docker-compose
         cd /root/project/
-        pwd
-        ls
         docker-compose up -d
         EOF
         rm private_key
@@ -192,10 +203,3 @@ jobs:
         doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         doctl compute domain records create thewise.cl --record-type A --record-name @ --record-data $IP --record-ttl 3600
-
-#    - name: Create A record for www.thewise.cl
-#      env:
-#        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-#      run: |
-#        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-#        doctl compute domain records create thewise.cl --record-type A --record-name www --record-data thewise.cl --record-ttl 3600
