@@ -176,7 +176,7 @@ jobs:
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
-        certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $LETS_ENCRYPT_EMAIL
+        certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m contacto@thewise.cl
         EOF
         rm private_key
 
