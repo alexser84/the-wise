@@ -210,8 +210,8 @@ jobs:
         for ((i=1;i<=RETRIES;i++)); do
           echo "Attempt $i to obtain SSL certificate..."
           ssh -i private_key -o StrictHostKeyChecking=no root@$IP <<EOF
-          certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $EMAIL
-          EOF
+          certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $EMAIL 
+        EOF
           if [ $? -eq 0 ]; then
             echo "SSL certificate obtained successfully."
             break
