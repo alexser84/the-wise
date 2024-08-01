@@ -163,6 +163,7 @@ jobs:
       run: |
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
+        chmod 600 private_key
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP "which certbot || (echo 'Certbot not installed' && exit 1)"
         rm private_key
 
