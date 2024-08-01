@@ -116,7 +116,18 @@ jobs:
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         doctl compute domain records create thewise.cl --record-type A --record-name @ --record-data $IP --record-ttl 3600
         doctl compute domain records create thewise.cl --record-type A --record-name www --record-data $IP --record-ttl 3600
-      
+  
+    - name: Copy project to Droplet
+      env:
+        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+        PROJECT_DIR: ${{ env.PROJECT_DIR }}
+      run: |
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        echo "$PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        scp -i private_key -o StrictHostKeyChecking=no -r ./* root@$IP:$PROJECT_DIR
+        rm private_key
+
     - name: Install Certbot
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
