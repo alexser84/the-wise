@@ -310,6 +310,28 @@ jobs:
         EOF
         rm private_key
 
+
+    - name: Check and free up port 80
+      env:
+        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+      run: |
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        echo "$PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
+        if lsof -i :80 > /dev/null; then
+          echo "Port 80 is in use by the following process:"
+          lsof -i :80
+          PID=$(lsof -t -i :80)
+          echo "Killing process $PID using port 80..."
+          kill -9 $PID
+          echo "Process $PID has been terminated."
+        else
+          echo "Port 80 is not in use."
+        fi
+        EOF
+        rm private_key
+
     - name: Obtain SSL Certificate with Let's Encrypt
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
