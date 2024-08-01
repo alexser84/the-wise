@@ -44,6 +44,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v2
 
@@ -97,58 +98,27 @@ jobs:
           sleep 5
         done
 
-    - name: Copy project to Droplet
+    - name: Delete old DNS records
       env:
-        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
-        PROJECT_DIR: ${{ env.PROJECT_DIR }}
+        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       run: |
-        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
-        echo "$PRIVATE_KEY" > private_key
-        chmod 600 private_key
-        ssh -i private_key -o StrictHostKeyChecking=no root@$IP "mkdir -p $PROJECT_DIR"
-        scp -i private_key -o StrictHostKeyChecking=no -r ./* root@$IP:$PROJECT_DIR
-        rm private_key
-
-    - name: Install Docker Compose on Droplet
-      env:
-        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
-      run: |
-        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
-        echo "$PRIVATE_KEY" > private_key
-        chmod 600 private_key
-        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
-        while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
-          echo "Waiting for release of dpkg lock..."
-          sleep 5
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        records=$(doctl compute domain records list thewise.cl --no-header --format ID,Type | grep " A " | cut -d' ' -f1)
+        for record in $records; do
+          doctl compute domain records delete thewise.cl $record --force
         done
-        apt-get update
-        apt-get install -y docker-compose
-        apt-get install -y certbot
-        rm -rf /etc/update-motd.d/99-one-click
-        EOF
-        rm private_key
+        records_www=$(doctl compute domain records list thewise.cl --no-header --format ID,Type | grep " A " | cut -d' ' -f1)
+        for record in $records_www; do
+          doctl compute domain records delete thewise.cl $record --force
+        done
 
-    - name: Create .env file on Droplet
+    - name: Create A record for thewise.cl
       env:
-        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
-        PROJECT_DIR: ${{ env.PROJECT_DIR }}
-        PORT: ${{ secrets.PORT }}
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
-        echo "$PRIVATE_KEY" > private_key
-        chmod 600 private_key
-        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << EOF
-        echo "PORT=${{ secrets.PORT }}" >> $PROJECT_DIR/.env
-        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $PROJECT_DIR/.env
-        echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> $PROJECT_DIR/.env
-        echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> $PROJECT_DIR/.env
-        echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> $PROJECT_DIR/.env
-        EOF
-        rm private_key
+        doctl compute domain records create thewise.cl --record-type A --record-name @ --record-data $IP --record-ttl 3600
 
     - name: Obtain SSL Certificate with Let's Encrypt
       env:
@@ -158,7 +128,7 @@ jobs:
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
-        certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m contacto@thewise.cl
+        certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m your-email@example.com
         EOF
         rm private_key
 
@@ -181,25 +151,3 @@ jobs:
         docker-compose up -d
         EOF
         rm private_key
-
-    - name: Delete old DNS records
-      env:
-        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      run: |
-        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-        records=$(doctl compute domain records list thewise.cl --no-header --format ID,Type | grep " A " | cut -d' ' -f1)
-        for record in $records; do
-          doctl compute domain records delete thewise.cl $record --force
-        done
-        records_www=$(doctl compute domain records list thewise.cl --no-header --format ID,Type | grep " A " | cut -d' ' -f1)
-        for record in $records_www; do
-          doctl compute domain records delete thewise.cl $record --force
-        done
-
-    - name: Create A record for thewise.cl
-      env:
-        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      run: |
-        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
-        doctl compute domain records create thewise.cl --record-type A --record-name @ --record-data $IP --record-ttl 3600
