@@ -170,13 +170,13 @@ jobs:
     - name: Obtain SSL Certificate with Let's Encrypt
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
-        EMAIL: ${{ secrets.LETS_ENCRYPT_EMAIL }}
+        LETS_ENCRYPT_EMAIL: ${{ secrets.LETS_ENCRYPT_EMAIL }}
       run: |
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
-        certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $EMAIL
+        certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $LETS_ENCRYPT_EMAIL
         EOF
         rm private_key
 
