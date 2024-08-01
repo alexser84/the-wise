@@ -24,6 +24,7 @@ app.use('/api', contactFormRouter);
 app.use((req, res, next) => {
     console.log('Request Body:', req.body);
     console.log('Request Query:', req.query);
+    console.log('Request path:', req.path);
     console.log('Content-Type:', req.get('Content-Type'));
     next();
   });

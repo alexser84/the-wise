@@ -3,8 +3,8 @@ const express = require('express');
 const router = express.Router();
 const requerimientoController = require('../controllers/requerimientoController');
 
-router.get('/', requerimientoController.getTicket);
+router.get('/', requerimientoController.getRequerimiento);
 
-router.post('/', requerimientoController.setTicket);
+//outer.post('/', requerimientoController.setTicket);
 
 module.exports = router;

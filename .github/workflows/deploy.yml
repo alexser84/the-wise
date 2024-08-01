@@ -119,6 +119,13 @@ jobs:
         doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         doctl compute domain records create thewise.cl --record-type A --record-name @ --record-data $IP --record-ttl 3600
+    
+    - name: Install Certbot
+      run: |
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
+        sudo apt-get update
+        sudo apt-get install -y certbot
+        EOF
 
     - name: Obtain SSL Certificate with Let's Encrypt
       env:
