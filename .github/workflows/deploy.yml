@@ -127,6 +127,26 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP "sudo apt-get update && sudo apt-get install -y certbot"
         rm private_key
 
+    - name: Wait for DNS Propagation
+      env:
+        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        RETRIES=10
+        DELAY=30
+        for ((i=1;i<=RETRIES;i++)); do
+          echo "Checking DNS propagation, attempt $i..."
+          nslookup thewise.cl && nslookup www.thewise.cl && break
+          echo "DNS records not found. Retrying in $DELAY seconds..."
+          sleep $DELAY
+        done
+        if [ $i -eq $((RETRIES+1)) ]; then
+          echo "DNS records did not propagate in time."
+          exit 1
+        fi
+      
+
     - name: Validate DNS Configuration
       env:
         DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
