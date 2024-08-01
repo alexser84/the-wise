@@ -8,6 +8,8 @@ const asesoriasRoutes = require('./asesoriasRoutes');
 const corretajeRoutes = require('./corretajeRoutes');
 const auditoriasRoutes = require('./auditoriasRoutes');
 const administracionRoutes = require('./administracionRoutes');
+const contactoRoutes = require('./contactoRoutes');
+
 //const requerimientoRoutes = require('./requerimientoRoutes');
 
 router.use('/', homeRoutes);
@@ -16,5 +18,7 @@ router.use('/auditorias', auditoriasRoutes);
 router.use('/corretaje', corretajeRoutes);
 router.use('/asesorias', asesoriasRoutes);
 //router.use('/requerimiento', requerimientoRoutes);
+router.use('/contacto', contactoRoutes);
+
 
 module.exports = router;

@@ -1,80 +1,165 @@
-    <!-- Contact Section -->
-    <section id="contact" class="contact section">
+<!-- Contact Section -->
+<section id="contact" class="contact section">
 
-        <!-- Section Title -->
-        <div class="container section-title" data-aos="fade-up">
-          <h2>Contacto</h2>
-          <p>Contáctanos</p>
-        </div><!-- End Section Title -->
-  
-        <div class="container" data-aos="fade-up" data-aos-delay="100">
-          <div class="row gy-4">
-            <div class="col-lg-6">
-              <div class="row gy-4">
-  
-                <div class="col-md-6">
-                  <div class="info-item" data-aos="fade" data-aos-delay="300">
-                    <i class="bi bi-telephone"></i>
-                    <h3>Llamános</h3>
-                    <p><a href="tel:+56958737888">+56 9 5873 7888</a></p>
-                  </div>
-                </div><!-- End Info Item -->
-  
-                <div class="col-md-6">
-                  <div class="info-item" data-aos="fade" data-aos-delay="400">
-                    <i class="bi bi-envelope"></i>
-                    <h3>Escríbenos</h3>
-                    <p><a href="mailto:contacto@thewise.cl">contacto@thewise.cl</a></p>
-                  </div>
-                </div><!-- End Info Item -->
-  
-                <div class="col-md-6">
-                  <div class="info-item" data-aos="fade" data-aos-delay="500">
-                    <i class="bi bi-whatsapp"></i>
-                    <h3>Envíanos un mensaje</h3>
-                    <p><a href="https://wa.me/+56958737888?text=Hola,%20me%20gustaría%20más%20información%20sobre%20sus%20servicios" target="_blank">+56 9 5873 7888</a></p>
-                  </div>
-                </div> <!--End Info Item -->
-  
-                <div class="col-md-6">
-                  <div class="info-item" data-aos="fade" data-aos-delay="500">
-                    <i class="bi bi-linkedin"></i>
-                    <h3>Uneté a nuestra red</h3>
-                    <p><a href="https://www.linkedin.com/in/claudia-condor-herrera-805367118/" target="_blank">Aquí</a></p>
-                  </div>
-                </div> <!--End Info Item -->
-              </div>
+  <!-- Section Title -->
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Contacto</h2>
+    <p>Contáctanos</p>
+  </div><!-- End Section Title -->
+
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row gy-4">
+      <div class="col-lg-6">
+        <div class="row gy-4">
+
+          <div class="col-md-6">
+            <div class="info-item" data-aos="fade" data-aos-delay="300">
+              <i class="bi bi-telephone"></i>
+              <h3>Llamános</h3>
+              <p><a href="tel:+56958737888">+56 9 5873 7888</a></p>
             </div>
-  
-            <div class="col-lg-6">
-              <form action="forms/contact.php" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
-                <div class="row gy-4">
-  
-                  <div class="col-md-6">
-                    <input type="text" name="name" class="form-control" placeholder="Nombre" required="">
-                  </div>
-  
-                  <div class="col-md-6 ">
-                    <input type="email" class="form-control" name="email" placeholder="Email" required="">
-                  </div>
-  
-                  <div class="col-md-12">
-                    <input type="text" class="form-control" name="subject" placeholder="Asunto" required="">
-                  </div>
-  
-                  <div class="col-md-12">
-                    <textarea class="form-control" name="message" rows="6" placeholder="Mensaje" required=""></textarea>
-                  </div>
-  
-                  <div class="col-md-12 text-center">
-                    <div class="loading">Cargando...</div>
-                    <div class="error-message"></div>
-                    <div class="sent-message">Tu mensaje ha sido enviado. Gracias!</div>
-                    <button type="submit">Enviar mensaje</button>
-                  </div>
-                </div>
-              </form>
-            </div><!-- End Contact Form -->
-          </div>
+          </div><!-- End Info Item -->
+
+          <div class="col-md-6">
+            <div class="info-item" data-aos="fade" data-aos-delay="400">
+              <i class="bi bi-envelope"></i>
+              <h3>Escríbenos</h3>
+              <p><a href="mailto:contacto@thewise.cl">contacto@thewise.cl</a></p>
+            </div>
+          </div><!-- End Info Item -->
+
+          <div class="col-md-6">
+            <div class="info-item" data-aos="fade" data-aos-delay="500">
+              <i class="bi bi-whatsapp"></i>
+              <h3>Envíanos un mensaje</h3>
+              <p><a href="https://wa.me/+56958737888?text=Hola,%20me%20gustaría%20más%20información%20sobre%20sus%20servicios" target="_blank">+56 9 5873 7888</a></p>
+            </div>
+          </div> <!--End Info Item -->
+
+          <div class="col-md-6">
+            <div class="info-item" data-aos="fade" data-aos-delay="500">
+              <i class="bi bi-linkedin"></i>
+              <h3>Uneté a nuestra red</h3>
+              <p><a href="https://www.linkedin.com/in/claudia-condor-herrera-805367118/" target="_blank">Aquí</a></p>
+            </div>
+          </div> <!--End Info Item -->
         </div>
-      </section><!-- /Contact Section -->
+      </div>
+
+      <div class="col-lg-6">
+        <form action="/api/contacto" method="post" class="php-email-form" id="form-contact" data-aos="fade-up" data-aos-delay="200">
+          <div class="row gy-4">
+
+            <div class="col-md-6">
+              <input type="text" name="name" class="form-control" placeholder="Nombre" required="">
+            </div>
+
+            <div class="col-md-6 ">
+              <input type="email" class="form-control" name="email" placeholder="Email" required="">
+            </div>
+
+            <div class="col-md-12">
+              <textarea class="form-control" id="message-textarea" name="message" rows="6" placeholder="Mensaje" required=""></textarea>
+            </div>
+
+            <div class="col-md-12 text-center">
+              <div id="loading" class="loading">Cargando...</div>
+              <div id="error-message" class="error-message">Surgio un error en el envío.  Contáctanos por whatsapp o vuelve a intentar</div>
+              <div id="sent-message" class="sent-message">Tu mensaje ha sido enviado. Gracias!</div>
+              <button type="submit">Enviar mensaje</button>
+            </div>
+          </div>
+        </form>
+      </div><!-- End Contact Form -->
+    </div>
+  </div>
+</section><!-- /Contact Section -->
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('form-contact');
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    sendFormData();
+  });
+});
+
+function sanitizeInput(input) {
+  let sanitized = input.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  sanitized = sanitized.replace(/[^\w\s@.,!?()-]/gi, '');
+  return sanitized.substring(0, 1000);
+}
+
+function sendFormData() {
+  document.getElementById('loading').style.display = 'block';
+  const form = document.getElementById('form-contact');
+  const formData = new FormData(form);
+  const sanitizedData = {};
+  formData.forEach((value, key) => {
+    sanitizedData[key] = sanitizeInput(value);
+  });
+  
+  fetch('/api/contacto', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(sanitizedData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.message) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('sent-message').style.display = 'block';
+      form.reset(); 
+    } else {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error-message').style.display = 'block';
+    }
+  })
+  .catch((error) => {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-message').style.display = 'block';
+  });
+}
+
+function setupTextareaLimit(textareaId, limit = 1000) {
+  const textarea = document.getElementById(textareaId);
+  const counterId = `${textareaId}-counter`;
+  
+  // Crear y añadir el elemento contador
+  const counter = document.createElement('div');
+  counter.id = counterId;
+  counter.style.cssText = 'font-size: 0.8em; color: #666; text-align: right;';
+  textarea.parentNode.insertBefore(counter, textarea.nextSibling);
+
+  // Función para actualizar el contador
+  function updateCounter() {
+    const remaining = limit - textarea.value.length;
+    counter.textContent = `${remaining} caracteres restantes`;
+    
+    // Cambiar el color si se acerca al límite
+    if (remaining < 50) {
+      counter.style.color = '#ff4500';
+    } else {
+      counter.style.color = '#666';
+    }
+  }
+
+  // Evento para limitar la entrada y actualizar el contador
+  textarea.addEventListener('input', function() {
+    if (this.value.length > limit) {
+      this.value = this.value.slice(0, limit);
+    }
+    updateCounter();
+  });
+
+  // Inicializar el contador
+  updateCounter();
+}
+
+// Uso de la función
+document.addEventListener('DOMContentLoaded', function() {
+  setupTextareaLimit('message-textarea');
+});
+</script>
