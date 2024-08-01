@@ -167,6 +167,16 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP "which certbot || (echo 'Certbot not installed' && exit 1)"
         rm private_key
 
+    - name: Allow HTTP traffic on port 80
+      env:
+        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+      run: |
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        echo "$PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP "ufw allow 80/tcp"
+        rm private_key
+
     - name: Obtain SSL Certificate with Let's Encrypt
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
