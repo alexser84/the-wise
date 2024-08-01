@@ -130,16 +130,50 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP "sudo apt-get update && sudo apt-get install -y certbot"
         rm private_key
       
+    - name: Validate DNS Configuration
+      env:
+        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      run: |
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        if ! host thewise.cl | grep -q "$IP"; then
+          echo "DNS validation failed for thewise.cl"; exit 1
+        fi
+        if ! host www.thewise.cl | grep -q "$IP"; then
+          echo "DNS validation failed for www.thewise.cl"; exit 1
+        fi
 
-    - name: Obtain SSL Certificate with Let's Encrypt
+    - name: Validate Certbot Installation
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
       run: |
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP "which certbot || (echo 'Certbot not installed' && exit 1)"
+        rm private_key
+
+    - name: Obtain SSL Certificate with Let's Encrypt
+      env:
+        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+        EMAIL: ${{ secrets.LETS_ENCRYPT_EMAIL }}
+      run: |
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
-        certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m your-email@example.com
+        certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $EMAIL
+        EOF
+        rm private_key
+
+    - name: Validate SSL Certificate
+      env:
+        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+      run: |
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        echo "$PRIVATE_KEY" > private_key
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
+        if [ ! -f /etc/letsencrypt/live/thewise.cl/fullchain.pem ]; then
+          echo "SSL Certificate not found"; exit 1
+        fi
         EOF
         rm private_key
 
