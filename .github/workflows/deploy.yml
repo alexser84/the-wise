@@ -124,7 +124,14 @@ jobs:
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
-        ssh -i private_key -o StrictHostKeyChecking=no root@$IP "sudo apt-get update && sudo apt-get install -y certbot"
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
+        while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+            echo "Waiting for other process to release dpkg lock..."
+            sleep 5
+        done
+        sudo apt-get update
+        sudo apt-get install -y certbot
+        EOF
         rm private_key
 
     - name: Wait for DNS Propagation
