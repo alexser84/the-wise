@@ -92,6 +92,7 @@ jobs:
 
     - name: Wait for droplet to be ready
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         while ! nc -z $IP 22; do
           echo "Waiting for SSH to be available..."
@@ -99,8 +100,6 @@ jobs:
         done
 
     - name: Delete old DNS records
-      env:
-        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       run: |
         doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         records=$(doctl compute domain records list thewise.cl --no-header --format ID,Type | grep " A " | cut -d' ' -f1)
@@ -110,8 +109,6 @@ jobs:
         done
       
     - name: Create A record for thewise.cl
-      env:
-        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       run: |
         doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
@@ -123,6 +120,7 @@ jobs:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
         PROJECT_DIR: ${{ env.PROJECT_DIR }}
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
@@ -134,6 +132,7 @@ jobs:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
         PROJECT_DIR: ${{ env.PROJECT_DIR }}
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
@@ -142,8 +141,6 @@ jobs:
         rm private_key
 
     - name: Wait for DNS Propagation
-      env:
-        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       run: |
         doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
@@ -164,6 +161,7 @@ jobs:
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
@@ -181,6 +179,7 @@ jobs:
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
@@ -191,6 +190,7 @@ jobs:
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
@@ -202,6 +202,7 @@ jobs:
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
@@ -226,6 +227,7 @@ jobs:
         POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
@@ -242,6 +244,7 @@ jobs:
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
@@ -253,6 +256,7 @@ jobs:
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
@@ -275,6 +279,7 @@ jobs:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
         EMAIL: ${{ secrets.LETS_ENCRYPT_EMAIL }}
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
@@ -304,6 +309,7 @@ jobs:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
         PROJECT_DIR: ${{ env.PROJECT_DIR }}
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
@@ -325,6 +331,7 @@ jobs:
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
       run: |
+        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
