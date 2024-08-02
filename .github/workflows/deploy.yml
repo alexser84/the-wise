@@ -171,7 +171,7 @@ jobs:
             sleep 5
         done
         sudo apt-get update
-        sudo apt-get install -y certbot
+        sudo apt-get install -y certbot python3-certbot-nginx
         EOF
         rm private_key
 
@@ -194,9 +194,10 @@ jobs:
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP << EOF
-          ufw status | grep '80/tcp' || ufw allow 80/tcp
-          ufw status | grep '443/tcp' || ufw allow 443/tcp
-          ufw reload
+          ufw status | grep '80/tcp' || sudo ufw allow 80/tcp
+          ufw status | grep '443/tcp' || sudo ufw allow 443/tcp
+          sudo ufw disabled
+          sudo ufw enable
         EOF
         rm private_key
       
@@ -253,29 +254,6 @@ jobs:
         chmod 600 private_key
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP "ip addr show; ip route show"
         rm private_key
-      
-
-    - name: Check and free up port 80
-      env:
-        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
-      run: |
-        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
-        echo "$PRIVATE_KEY" > private_key
-        chmod 600 private_key
-        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
-        if lsof -i :80 > /dev/null; then
-          echo "Port 80 is in use by the following process:"
-          lsof -i :80
-          PID=$(lsof -t -i :80)
-          echo "Killing process $PID using port 80..."
-          kill -9 $PID
-          echo "Process $PID has been terminated."
-        else
-          echo "Port 80 is not in use."
-        fi
-        EOF
-        rm private_key
 
     - name: Obtain SSL Certificate with Let's Encrypt
       env:
@@ -291,7 +269,7 @@ jobs:
         for ((i=1;i<=RETRIES;i++)); do
           echo "Attempt $i to obtain SSL certificate..."
           ssh -i private_key -o StrictHostKeyChecking=no root@$IP <<EOF
-          certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $EMAIL || cat /var/log/letsencrypt/letsencrypt.log 
+          sudo certbot --nginx --nginx-server-root=/project/nginx.conf -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $EMAIL || cat /var/log/letsencrypt/letsencrypt.log 
         EOF
           if [ $? -eq 0 ]; then
             echo "SSL certificate obtained successfully."
