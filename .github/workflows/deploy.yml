@@ -105,6 +105,7 @@ jobs:
         doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         records=$(doctl compute domain records list thewise.cl --no-header --format ID,Type | grep " A " | cut -d' ' -f1)
         for record in $records; do
+          echo "Deleting record $record..."
           doctl compute domain records delete thewise.cl $record --force
         done
       
@@ -140,23 +141,6 @@ jobs:
         scp -i private_key -o StrictHostKeyChecking=no -r ./* root@$IP:$PROJECT_DIR
         rm private_key
 
-    - name: Install Certbot
-      env:
-        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
-      run: |
-        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
-        echo "$PRIVATE_KEY" > private_key
-        chmod 600 private_key
-        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
-        while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
-            echo "Waiting for other process to release dpkg lock..."
-            sleep 5
-        done
-        sudo apt-get update
-        sudo apt-get install -y certbot
-        EOF
-        rm private_key
-
     - name: Wait for DNS Propagation
       env:
         DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
@@ -175,37 +159,23 @@ jobs:
           echo "DNS records did not propagate in time."
           exit 1
         fi
-      
 
-#    - name: Validate DNS Configuration
-#      env:
-#        DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-#      run: |
-#        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
-#        for i in {1..5}; do
-#          if host thewise.cl | grep -q "$IP"; then
-#            echo "DNS configuration successful for thewise.cl"
-#            break
-#          else
-#            echo "DNS validation failed for thewise.cl, retrying... ($i/5)"
-#            sleep 60
-#          fi
-#          if [ $i -eq 5 ]; then
-#            echo "DNS validation failed after 5 attempts"; exit 1
-#          fi
-#        done
-#        for i in {1..5}; do
-#          if host www.thewise.cl | grep -q "$IP"; then
-#            echo "DNS configuration successful for www.thewise.cl"
-#            break
-#          else
-#            echo "DNS validation failed for www.thewise.cl, retrying... ($i/5)"
-#            sleep 60
-#          fi
-#          if [ $i -eq 5 ]; then
-#            echo "DNS validation failed after 5 attempts"; exit 1
-#          fi
-#        done
+    - name: Install Certbot
+      env:
+        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+      run: |
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        echo "$PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
+        while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+            echo "Waiting for other process to release dpkg lock..."
+            sleep 5
+        done
+        sudo apt-get update
+        sudo apt-get install -y certbot
+        EOF
+        rm private_key
 
     - name: Validate Certbot Installation
       env:
@@ -217,58 +187,16 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP "which certbot || (echo 'Certbot not installed' && exit 1)"
         rm private_key
 
-    - name: Allow HTTP traffic on port 80
+    - name: Check UFW rules for port 80
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
       run: |
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
-        ssh -i private_key -o StrictHostKeyChecking=no root@$IP "ufw allow 80/tcp"
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP "ufw status | grep '80/tcp' || echo 'Port 80 not allowed in UFW'"
         rm private_key
-
-#    - name: Obtain SSL Certificate with Let's Encrypt
-#      env:
-#        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
-#        EMAIL: ${{ secrets.LETS_ENCRYPT_EMAIL }}
-#      run: |
-#        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
-#        echo "$PRIVATE_KEY" > private_key
-#        chmod 600 private_key
-#        RETRIES=5
-#        DELAY=30
-#        for ((i=1;i<=RETRIES;i++)); do
-#          echo "Attempt $i to obtain SSL certificate..."
-#          ssh -i private_key -o StrictHostKeyChecking=no root@$IP <<EOF
-#          certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $EMAIL 
-#        EOF
-#          if [ $? -eq 0 ]; then
-#            echo "SSL certificate obtained successfully."
-#            break
-#          else
-#            echo "Failed to obtain SSL certificate. Retrying in $DELAY seconds..."
-#            sleep $DELAY
-#          fi
-#        done
-#        if [ $i -eq $((RETRIES+1)) ]; then
-#          echo "Failed to obtain SSL certificate after multiple attempts."
-#          exit 1
-#        fi
-#        rm private_key
-#
-#    - name: Validate SSL Certificate
-#      env:
-#        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
-#      run: |
-#        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
-#        echo "$PRIVATE_KEY" > private_key
-#        chmod 600 private_key
-#        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << 'EOF'
-#        if [ ! -f /etc/letsencrypt/live/thewise.cl/fullchain.pem ]; then
-#          echo "SSL Certificate not found"; exit 1
-#        fi
-#        EOF
-#        rm private_key
+      
 
     - name: Install Docker Compose on Droplet
       env:
@@ -310,6 +238,16 @@ jobs:
         EOF
         rm private_key
 
+    - name: Check network interfaces and routes
+      env:
+        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+      run: |
+        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
+        echo "$PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP "ip addr show; ip route show"
+        rm private_key
+      
 
     - name: Check and free up port 80
       env:
@@ -345,7 +283,7 @@ jobs:
         for ((i=1;i<=RETRIES;i++)); do
           echo "Attempt $i to obtain SSL certificate..."
           ssh -i private_key -o StrictHostKeyChecking=no root@$IP <<EOF
-          certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $EMAIL 
+          certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $EMAIL || cat /var/log/letsencrypt/letsencrypt.log 
         EOF
           if [ $? -eq 0 ]; then
             echo "SSL certificate obtained successfully."
