@@ -186,15 +186,18 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no root@$IP "which certbot || (echo 'Certbot not installed' && exit 1)"
         rm private_key
 
-    - name: Check UFW rules for port 80
+    - name: Open necessary ports in UFW
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
       run: |
-        doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
-        ssh -i private_key -o StrictHostKeyChecking=no root@$IP "ufw status | grep '80/tcp' || echo 'Port 80 not allowed in UFW'"
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP << EOF
+          ufw status | grep '80/tcp' || ufw allow 80/tcp
+          ufw status | grep '443/tcp' || ufw allow 443/tcp
+          ufw reload
+        EOF
         rm private_key
       
 
