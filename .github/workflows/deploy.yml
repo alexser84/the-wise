@@ -321,35 +321,6 @@ jobs:
         EOF
         rm private_key
 
-    - name: Obtain SSL Certificate with Let's Encrypt
-      env:
-        PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
-        EMAIL: ${{ secrets.LETS_ENCRYPT_EMAIL }}
-      run: |
-        IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
-        echo "$PRIVATE_KEY" > private_key
-        chmod 600 private_key
-        RETRIES=5
-        DELAY=30
-        for ((i=1;i<=RETRIES;i++)); do
-          echo "Attempt $i to obtain SSL certificate..."
-          ssh -i private_key -o StrictHostKeyChecking=no root@$IP <<EOF
-          certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $EMAIL 
-        EOF
-          if [ $? -eq 0 ]; then
-            echo "SSL certificate obtained successfully."
-            break
-          else
-            echo "Failed to obtain SSL certificate. Retrying in $DELAY seconds..."
-            sleep $DELAY
-          fi
-        done
-        if [ $i -eq $((RETRIES+1)) ]; then
-          echo "Failed to obtain SSL certificate after multiple attempts."
-          exit 1
-        fi
-        rm private_key
-
     - name: Validate SSL Certificate
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
