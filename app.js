@@ -4,7 +4,7 @@ const express = require('express');
 const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
 const app = express();
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 3000;
 const routes = require('./routes/index');
 const contactFormRouter = require('./routes/contactoRoutes');
 app.use(express.json());
