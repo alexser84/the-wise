@@ -9,8 +9,8 @@ services:
       - NODE_ENV=production
       - PORT=${PORT}
       - DATABASE_URL=${DATABASE_URL}
-    depends_on:
-      - db
+#    depends_on:
+#      - db
     env_file:
       - .env
 
