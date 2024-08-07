@@ -148,7 +148,6 @@ jobs:
     - name: Install and Configure Certbot, Validate Installation, and Manage SSL
       env:
         PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
-        EMAIL: ${{ secrets.LETS_ENCRYPT_EMAIL }}
       run: |
         doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
@@ -166,7 +165,7 @@ jobs:
         fi
         sudo ufw disable
         sudo systemctl stop nginx
-        sudo certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $EMAIL
+        sudo certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m ${{ secrets.LETS_ENCRYPT_EMAIL }}
         sudo bash -c 'cat <<EOL > /etc/nginx/sites-available/default
         server {
           listen 80;
