@@ -183,11 +183,11 @@ jobs:
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
+        ssh -i private_key -o StrictHostKeyChecking=no root@$IP "which certbot || (echo 'Certbot not installed' && exit 1)"
         sudo apt-get update
         sudo ufw disable
         sudo systemctl stop nginx
         sudo certbot certonly --standalone -d thewise.cl -d www.thewise.cl --non-interactive --agree-tos -m $EMAIL
-        # Configurar Nginx para usar SSL
         sudo bash -c 'cat <<EOF > /etc/nginx/sites-available/default
         server {
             listen 80;
