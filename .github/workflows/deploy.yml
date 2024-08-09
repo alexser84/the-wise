@@ -114,6 +114,8 @@ jobs:
         IP=$(doctl compute droplet list the-wise-app --format PublicIPv4 --no-header)
         doctl compute domain records create ${{ secrets.HOST_NAME }} --record-type A --record-name @ --record-data $IP --record-ttl 3600
         doctl compute domain records create ${{ secrets.HOST_NAME }} --record-type CNAME --record-name www --record-data @ --record-ttl 3600
+        doctl compute domain records create ${{ secrets.HOST_NAME }} --record-type CNAME --record-name admin --record-data @ --record-ttl 3600
+
 
     - name: Copy project to Droplet
       env:
