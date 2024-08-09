@@ -1,6 +1,6 @@
 
 const requerimientoModel = {
-    title: "The Wise - Soluciones sabias",
+    title: "Soluciones sabias para tu condominio en Santiago | The Wise",
     description: ""
 };
 
