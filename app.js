@@ -15,9 +15,8 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.static('public'));
 
-// Middleware para manejar layouts
 app.use(expressLayouts);
-app.set('layout', 'layouts/layout');  // Establece la ruta de tu layout principal
+app.set('layout', 'layouts/layout'); 
 app.use(routes);
 app.use('/api', contactFormRouter);
 
