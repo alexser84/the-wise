@@ -166,7 +166,7 @@ jobs:
         fi
         sudo ufw disable
         sudo systemctl stop nginx
-        sudo certbot certonly --standalone -d ${{ secrets.HOST_NAME }} -d www.${{ secrets.HOST_NAME }} -d admin.${{ secrets.HOST_NAME }} --non-interactive --agree-tos -m ${{ secrets.LETS_ENCRYPT_EMAIL }}
+        sudo certbot certonly --standalone -d ${{ secrets.HOST_NAME }} -d www.${{ secrets.HOST_NAME }} --non-interactive --agree-tos -m ${{ secrets.LETS_ENCRYPT_EMAIL }}
         sudo bash -c 'cat <<EOL > /etc/nginx/sites-available/default
         server {
           listen 80;
