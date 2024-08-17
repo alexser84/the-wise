@@ -171,7 +171,7 @@ jobs:
         server {
           listen 80;
           server_name ${{ secrets.HOST_NAME }} www.${{ secrets.HOST_NAME }};
-          return 301 https://$server_name$request_uri;
+          return 301 https://\$server_name\$request_uri;
         }
         server {
           listen 443 ssl http2;
